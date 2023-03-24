@@ -8,6 +8,21 @@ This command will use webpack to compile the application and place it into the d
 npx webpack 
 ```
 
+Note: Do not forget to add the index.html file to the dist/ directory
+
+```
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <title>Getting Started</title>
+   </head>
+   <body>
+    <script src="main.js"></script>
+   </body>
+ </html>
+```
+
 To run the application, launch your server and reference the dist directory. You can use Live Server extension with Visual Studio Code
 
 -   Name: Live Server

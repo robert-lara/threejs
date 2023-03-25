@@ -11,7 +11,7 @@ const canvas = document.getElementById('car-canvas');
 canvas.style.backgroundColor = '#ffff00';
 const context = canvas.getContext('2d');
 const scaleStart = 5; //Resoluition scale animation is rendered with
-const scaleEnd = 100; //Resolution scale of Upscaled animation
+const scaleEnd = 5; //Resolution scale of Upscaled animation
 
 const finalDimensionsForImage = applyScale(480, 640, scaleEnd)
 const finalDimensions = applyScale(480,640,scaleStart);
@@ -59,7 +59,7 @@ function applyScale(height, width, scale){
     }
   }
 
-loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
+loader.load('assets/carlowres.glb', function ( gltf) {
 
     function component(argScene) {
 
@@ -85,10 +85,7 @@ loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
         const light = new THREE.AmbientLight( 0x000000 ); // soft white light
         light.position.x += 1;
         light.position.y += 1;
-        
         scene.add( light );
-
-    
         camera.position.z = 5;
 
 
@@ -103,10 +100,6 @@ loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
             } );
 
             argScene.rotation.y += 0.001;
-
-            light.rotation.x += 0.01;
-            light.rotation.y += 0.01;            
-
             renderer.render(scene, camera);
         };
     

@@ -4,35 +4,33 @@ import * as tf from '@tensorflow/tfjs';
 import * as models from '@upscalerjs/esrgan-slim';
 import Upscaler from "upscaler";
 const upscaler = new Upscaler({
-    model: models.x4,
-  });
+    model: models.x2,
+});
 const loader = new GLTFLoader();
 const button = document.getElementById('photo');
-const canvas = document.getElementById('car-canvas');
-canvas.style.backgroundColor = '#ffff00';
-const context = canvas.getContext('2d');
-context.imageSmoothingEnabled = true;
-const scaleStart = 5; //Resoluition scale animation is rendered with
-const scaleEnd = 5; //Resolution scale of Upscaled animation
+const carCanvas = document.getElementById('car-canvas');
+carCanvas.style.backgroundColor = '#ffff00';
+const context = carCanvas.getContext('2d');
+const resolutionHeight = 360;
+const resolutionWidth = 640;
+const scaleStart = 50; //Resoluition scale animation is rendered with
+const scaleEnd = 10; //Resolution scale of Upscaled animation
+const finalDimensionsForImage = applyScale(resolutionHeight, resolutionWidth, scaleEnd)
+const finalDimensions = applyScale(resolutionHeight, resolutionWidth, scaleStart);
+carCanvas.height = finalDimensionsForImage.height;
+carCanvas.width = finalDimensionsForImage.width;
 
-const finalDimensionsForImage = applyScale(480, 640, scaleEnd)
-const finalDimensions = applyScale(480,640,scaleStart);
-canvas.height = finalDimensionsForImage.height;
-canvas.width = finalDimensionsForImage.width;
+button.onclick = function () {
 
-button.onclick = function(){
+    
+    function step() {
 
-    function step(){
+        upscaler.upscale(document.getElementById('video-canvas').toDataURL()).then(upscaledImage => {
 
-        upscaler.upscale(document.getElementById('video-canvas').toDataURL(), {
-            patchSize: 64,
-            padding: 2,
-          }).then(upscaledImage => {
+            var image = new Image(finalDimensionsForImage.width, finalDimensionsForImage.height);
+            image.onload = function () {
 
-            var image = new Image(finalDimensionsForImage.width,finalDimensionsForImage.height);
-            image.onload = function() {
-                
-                context.drawImage(image, 0,0,finalDimensionsForImage.width,finalDimensionsForImage.height);
+                context.drawImage(image, 0, 0, finalDimensionsForImage.width, finalDimensionsForImage.height);
                 window.requestAnimationFrame(step);
             };
             image.src = upscaledImage;
@@ -40,16 +38,18 @@ button.onclick = function(){
 
     }
 
-    window.requestAnimationFrame(step);
+    //window.requestAnimationFrame(step);
+
+
 
 };
 
-function applyScale(height, width, scale){
+function applyScale(height, width, scale) {
 
     const selectedHeight = height;
     const selectedWidth = width;
 
-    const pixels = selectedWidth * selectedHeight * scale/100;
+    const pixels = selectedWidth * selectedHeight * scale / 100;
 
     const wRatio = selectedHeight / selectedWidth;
     const hRatio = selectedWidth / selectedHeight;
@@ -61,63 +61,72 @@ function applyScale(height, width, scale){
         height: finalHeight,
         width: finalWidth
     }
-  }
+}
 
-loader.load('assets/carlowres.glb', function ( gltf) {
+loader.load('assets/free_1975_porsche_911_930_turbo.glb', function (gltf) {
+
+
 
     function component(argScene) {
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0xffff00 );
+        scene.background = new THREE.Color(0xffff00);
 
         const camera = new THREE.PerspectiveCamera(75, finalDimensions.width / finalDimensions.height, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({
-            preserveDrawingBuffer: true 
+            antialias: true,
         });
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
         renderer.outputEncoding = THREE.sRGBEncoding;
-        
+
         renderer.setSize(finalDimensions.width, finalDimensions.height);
         document.body.appendChild(renderer.domElement);
-        var ambientLight = new THREE.AmbientLight( 0xffffff );
+        var ambientLight = new THREE.AmbientLight(0xffffff, 5);
         ambientLight.position.x += 50;
 
-        scene.add( ambientLight );
+        scene.add(ambientLight);
         argScene.position.y = -1.2;
         scene.add(argScene);
-        const light = new THREE.AmbientLight( 0x000000 ); // soft white light
+        const light = new THREE.AmbientLight(0x000000); // soft white light
         light.position.x += 1;
         light.position.y += 1;
-        scene.add( light );
+        scene.add(light);
         camera.position.z = 5;
+        scene.traverse(child => {
 
+            if (child.material) child.material.metalness = 0;
+
+        });
 
         
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            scene.traverse( child => {
 
-                if ( child.material ) child.material.metalness = 0;
-            
-            } );
+        function animate() {
 
             argScene.rotation.y += 0.001;
             renderer.render(scene, camera);
+            requestAnimationFrame(animate);
         };
-    
-        animate();
-        
+
+        requestAnimationFrame(animate);
+
         renderer.domElement.id = 'video-canvas';
+        renderer.domElement.style.height = finalDimensions.height;
+        renderer.domElement.style.width = finalDimensions.width;
         return renderer.domElement;
     }
 
     document.body.appendChild(component(gltf.scene));
 
-}, undefined, function ( error ) {
+    const canvas = document.getElementById('video-canvas');
+    const video = document.querySelector('video');
 
-    console.error( error );
+    const stream = canvas.captureStream();
+    video.srcObject = stream;
 
-} );
+}, undefined, function (error) {
+
+    console.error(error);
+
+});
 

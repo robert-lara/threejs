@@ -9,7 +9,6 @@ const button = document.getElementById('photo');
 button.onclick = function(){
     console.log('onclick');
     var showCanvas = document.getElementById('video-canvas');
-    console.log(showCanvas.toDataURL());
     upscaler.upscale(showCanvas.toDataURL()).then(upscaledImage => {
 
         var canvas = document.getElementById('car-canvas');
@@ -27,15 +26,36 @@ button.onclick = function(){
     });
 };
 
+function applyScale(height, width){
+
+    const selectedHeight = height;
+    const selectedWidth = width;
+
+    const pixels = selectedWidth * selectedHeight * 10/100;
+
+    const wRatio = selectedHeight / selectedWidth;
+    const hRatio = selectedWidth / selectedHeight;
+
+    const finalWidth = Math.sqrt(pixels / wRatio);
+    const finalHeight = Math.sqrt(pixels / hRatio);
+
+    return {
+        height: finalHeight,
+        width: finalWidth
+    }
+  }
+
 loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
 
     function component(argScene) {
-        const innerWidth = 720;//window.innerWidth;
+        const innerWidth = 640;//window.innerWidth;
         const innerHeight = 480;//window.innerHeight;
+
+        const finalDimensions = applyScale(innerHeight,innerWidth);
         const scene = new THREE.Scene();
         scene.background = new THREE.Color( 0xffff00 );
 
-        const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, finalDimensions.width / finalDimensions.height, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({
             preserveDrawingBuffer: true 
         });
@@ -43,7 +63,7 @@ loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
         renderer.toneMappingExposure = 1;
         renderer.outputEncoding = THREE.sRGBEncoding;
         
-        renderer.setSize(innerWidth, innerHeight);
+        renderer.setSize(finalDimensions.width, finalDimensions.height);
         document.body.appendChild(renderer.domElement);
         var ambientLight = new THREE.AmbientLight( 0xffffff );
         ambientLight.position.x += 50;

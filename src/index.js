@@ -1,37 +1,43 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import x2 from '@upscalerjs/esrgan-thick/2x';
+import * as models from '@upscalerjs/esrgan-slim';
 import Upscaler from "upscaler";
 const upscaler = new Upscaler({
-    model:x2,
-  })
+    model: models.x2,
+  });
 const loader = new GLTFLoader();
 const button = document.getElementById('photo');
+const canvas = document.getElementById('car-canvas');
+canvas.style.backgroundColor = '#ffff00';
+const context = canvas.getContext('2d');
+const scaleStart = 5; //Resoluition scale animation is rendered with
+const scaleEnd = 100; //Resolution scale of Upscaled animation
 
+const finalDimensionsForImage = applyScale(480, 640, scaleEnd)
+const finalDimensions = applyScale(480,640,scaleStart);
+canvas.height = finalDimensionsForImage.height;
+canvas.width = finalDimensionsForImage.width;
 
 button.onclick = function(){
-    console.log('onclick');
-    var showCanvas = document.getElementById('video-canvas');
-    upscaler.upscale(showCanvas.toDataURL()).then(upscaledImage => {
 
-        var canvas = document.getElementById('car-canvas');
-        const innerWidth = 640;//window.innerWidth;
-        const innerHeight = 480;//window.innerHeight;
-        const finalDimensions = applyScale(innerHeight, innerWidth, 10)
-        canvas.height = finalDimensions.height;
-        canvas.width = finalDimensions.width;
-        var context = canvas.getContext('2d');
-        
-        var image = new Image();
-        image.height = finalDimensions.height;
-        image.width = finalDimensions.width;
-        image.onload = function() {
-            context.drawImage(image, 0,0,finalDimensions.width,finalDimensions.height);
-        };
-        image.src = upscaledImage;
-        console.log('upscale');
-         
-    });
+    const videoCanvas = document.getElementById('video-canvas');
+
+    function step(){
+
+        upscaler.upscale(videoCanvas.toDataURL()).then(upscaledImage => {
+
+            var image = new Image(finalDimensionsForImage.width,finalDimensionsForImage.height);
+            image.onload = function() {
+                context.drawImage(image, 0,0,finalDimensionsForImage.width,finalDimensionsForImage.height);
+                window.requestAnimationFrame(step);
+            };
+            image.src = upscaledImage;
+        });
+
+    }
+
+    window.requestAnimationFrame(step);
+
 };
 
 function applyScale(height, width, scale){
@@ -56,10 +62,7 @@ function applyScale(height, width, scale){
 loader.load('assets/free_1975_porsche_911_930_turbo.glb', function ( gltf) {
 
     function component(argScene) {
-        const innerWidth = 640;//window.innerWidth;
-        const innerHeight = 480;//window.innerHeight;
 
-        const finalDimensions = applyScale(innerHeight,innerWidth,5);
         const scene = new THREE.Scene();
         scene.background = new THREE.Color( 0xffff00 );
 

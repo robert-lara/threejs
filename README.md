@@ -8,19 +8,35 @@ This command will use webpack to compile the application and place it into the d
 npx webpack 
 ```
 
-Note: Do not forget to add the index.html file to the dist/ directory
+Note: Do not forget to add the dist_index.html file to the dist/ directory and remove the "dist_" from the name. Here is the code incase you want to just make it and not copy it
 
 ```
- <!DOCTYPE html>
- <html>
-   <head>
-     <meta charset="utf-8" />
-     <title>Getting Started</title>
-   </head>
-   <body>
-    <script src="main.js"></script>
-   </body>
- </html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting Started</title>
+    <style>
+      .button {
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        background-color: blueviolet;
+      }
+      </style>
+  </head>
+  <body>
+    <button id="photo" class="button">Begin Upscale Animation</button>
+    <canvas id="car-canvas"></canvas>
+   <script src="main.js"></script>
+  </body>
+</html>
 ```
 
 To run the application, launch your server and reference the dist directory. You can use Live Server extension with Visual Studio Code

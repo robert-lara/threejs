@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@upscalerjs/esrgan-thick": "^1.0.0-beta.11",
+    "@upscalerjs/esrgan-slim": "^1.0.0-beta.8",
     "three": "^0.149.0",
     "upscaler": "^1.0.0-beta.16"
   },

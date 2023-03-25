@@ -1,15 +1,17 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as tf from '@tensorflow/tfjs';
 import * as models from '@upscalerjs/esrgan-slim';
 import Upscaler from "upscaler";
 const upscaler = new Upscaler({
-    model: models.x2,
+    model: models.x4,
   });
 const loader = new GLTFLoader();
 const button = document.getElementById('photo');
 const canvas = document.getElementById('car-canvas');
 canvas.style.backgroundColor = '#ffff00';
 const context = canvas.getContext('2d');
+context.imageSmoothingEnabled = true;
 const scaleStart = 5; //Resoluition scale animation is rendered with
 const scaleEnd = 5; //Resolution scale of Upscaled animation
 
@@ -20,14 +22,16 @@ canvas.width = finalDimensionsForImage.width;
 
 button.onclick = function(){
 
-    const videoCanvas = document.getElementById('video-canvas');
-
     function step(){
 
-        upscaler.upscale(videoCanvas.toDataURL()).then(upscaledImage => {
+        upscaler.upscale(document.getElementById('video-canvas').toDataURL(), {
+            patchSize: 64,
+            padding: 2,
+          }).then(upscaledImage => {
 
             var image = new Image(finalDimensionsForImage.width,finalDimensionsForImage.height);
             image.onload = function() {
+                
                 context.drawImage(image, 0,0,finalDimensionsForImage.width,finalDimensionsForImage.height);
                 window.requestAnimationFrame(step);
             };

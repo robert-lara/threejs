@@ -4,23 +4,45 @@
     <meta charset="utf-8" />
     <title>Getting Started</title>
     <style>
-      .button {
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        background-color: blueviolet;
+      video {
+        width: 50% !important;
+        height: auto !important;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
+
+      #video-canvas, #car-canvas {
+        width: 50% !important;
+        height: auto !important;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
+
+      html {
+        height: 100%;
+        width: 100%;
+      }
+
+      body{
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        width: 100%;
+        justify-content: center;
+        vertical-align: middle;
+        margin: 0px;
+        overflow: hidden;
+      }
+
+      canvas {
+        border-left: solid 1px black;
       }
       </style>
   </head>
   <body>
     <button id="photo" class="button" hidden>Begin Upscale Animation</button>
     <canvas id="car-canvas" hidden></canvas>
+    <video playsinline autoplay muted></video>
    <script src="main.js"></script>
   </body>
 </html>

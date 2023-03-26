@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as tf from '@tensorflow/tfjs';
 import * as models from '@upscalerjs/esrgan-slim';
+import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect } from "postprocessing";
 import Upscaler from "upscaler";
 const upscaler = new Upscaler({
     model: models.x2,
@@ -11,8 +12,8 @@ const button = document.getElementById('photo');
 const carCanvas = document.getElementById('car-canvas');
 carCanvas.style.backgroundColor = '#ffff00';
 const context = carCanvas.getContext('2d');
-const resolutionHeight = 360;
-const resolutionWidth = 640;
+const resolutionHeight = 720;
+const resolutionWidth = 1280;
 const scaleStart = 100; //Resoluition scale animation is rendered with
 const scaleEnd = 100; //Resolution scale of Upscaled animation
 const finalDimensionsForImage = applyScale(resolutionHeight, resolutionWidth, scaleEnd)
@@ -74,7 +75,9 @@ loader.load('assets/free_1975_porsche_911_930_turbo.glb', function (gltf) {
 
         const camera = new THREE.PerspectiveCamera(75, finalDimensions.width / finalDimensions.height, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({
-            antialias: true,
+            antialias: false,
+            stencil: false,
+            depth: false
         });
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
@@ -99,13 +102,18 @@ loader.load('assets/free_1975_porsche_911_930_turbo.glb', function (gltf) {
 
         });
 
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        composer.addPass(new EffectPass(camera, new SMAAEffect()));
+
         
 
         function animate() {
 
             argScene.rotation.y += 0.001;
-            renderer.render(scene, camera);
+            // renderer.render(scene, camera);
             requestAnimationFrame(animate);
+            composer.render();
         };
 
         requestAnimationFrame(animate);
